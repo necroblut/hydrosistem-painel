@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Hydrosistem — Painel de Entulhos</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul:       #0057A8;
+    --azul-esc:   #003D7A;
+    --azul-claro: #E8F2FC;
+    --verde:      #1A7A3C;
+    --verde-bg:   #E6F4EC;
+    --amarelo:    #B87C00;
+    --amarelo-bg: #FFF8E6;
+    --vermelho:   #C0392B;
+    --vermelho-bg:#FDECEA;
+    --cinza:      #F4F6F9;
+    --texto:      #1A2332;
+    --texto2:     #5A6A7E;
+    --borda:      #D8E3EE;
+    --branco:     #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--cinza);
+    color: var(--texto);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul) 100%);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-circle {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: 0.5px;
+  }
+
+  .header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .btn-atualizar {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+  .btn-atualizar:hover { background: rgba(255,255,255,0.25); }
+  .btn-atualizar.girando svg { animation: girar 1s linear infinite; }
+  @keyframes girar { to { transform: rotate(360deg); } }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--branco);
+    border-bottom: 1px solid var(--borda);
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .stats-bar::-webkit-scrollbar { display: none; }
+
+  .stat-item {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid var(--borda);
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--texto2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .stat-item.urgente .stat-num  { color: var(--vermelho); }
+  .stat-item.pendente .stat-num { color: var(--amarelo); }
+  .stat-item.andamento .stat-num{ color: var(--azul); }
+  .stat-item.concluido .stat-num{ color: var(--verde); }
+
+  /* MAIN */
+  main { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+  .secao-titulo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--texto2);
+    margin: 16px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .secao-titulo::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--borda);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--branco);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border: 1px solid var(--borda);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:active { transform: scale(0.99); }
+
+  .card-topo {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .card-barra {
+    width: 5px;
+    flex-shrink: 0;
+  }
+  .card.urgente   .card-barra { background: var(--vermelho); }
+  .card.pendente  .card-barra { background: var(--amarelo); }
+  .card.andamento .card-barra { background: var(--azul); }
+  .card.atrasado  .card-barra { background: #8B0000; }
+
+  .card-corpo {
+    flex: 1;
+    padding: 14px 14px 12px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .protocolo-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--texto2);
+    text-transform: uppercase;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge.urgente   { background: var(--vermelho-bg); color: var(--vermelho); }
+  .badge.pendente  { background: var(--amarelo-bg);  color: var(--amarelo); }
+  .badge.andamento { background: var(--azul-claro);  color: var(--azul); }
+  .badge.atrasado  { background: #FDECEA; color: #8B0000; }
+
+  .endereco {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--texto);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .card-info {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--texto2);
+  }
+
+  .prazo-bar-wrap {
+    margin-bottom: 10px;
+  }
+
+  .prazo-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .prazo-bar {
+    height: 5px;
+    background: var(--cinza);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .prazo-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s;
+  }
+
+  .card.urgente   .prazo-fill { background: var(--vermelho); }
+  .card.pendente  .prazo-fill { background: var(--amarelo); }
+  .card.andamento .prazo-fill { background: var(--azul); }
+  .card.atrasado  .prazo-fill { background: #8B0000; width: 100% !important; }
+
+  .btn-concluir {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    background: var(--azul);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: background 0.2s;
+  }
+  .btn-concluir:hover { background: var(--azul-esc); }
+  .card.urgente  .btn-concluir { background: var(--vermelho); }
+  .card.urgente  .btn-concluir:hover { background: #a93226; }
+  .card.atrasado .btn-concluir { background: #8B0000; }
+
+  /* VAZIO */
+  .vazio {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--texto2);
+  }
+  .vazio-icon { font-size: 48px; margin-bottom: 12px; }
+  .vazio-titulo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--verde);
+    margin-bottom: 4px;
+  }
+  .vazio-sub { font-size: 13px; }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--texto2);
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--borda);
+    border-top-color: var(--azul);
+    border-radius: 50%;
+    animation: girar 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  .atualizado {
+    text-align: center;
+    font-size: 11px;
+    color: var(--texto2);
+    padding: 12px;
+    margin-top: 4px;
+  }
+
+  /* ALERTA PISCANDO */
+  .card.urgente {
+    animation: piscar-borda 2s ease-in-out infinite;
+  }
+  @keyframes piscar-borda {
+    0%, 100% { box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    50% { box-shadow: 0 0 0 2px rgba(192,57,43,0.3); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-circle">💧</div>
+    <div>
+      <div class="header-title">HYDROSISTEM</div>
+      <div class="header-sub">Painel de Entulhos</div>
+    </div>
+  </div>
+  <button class="btn-atualizar" onclick="carregarDados(this)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"></polyline>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+    </svg>
+    Atualizar
+  </button>
+</header>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat-item urgente"><div class="stat-num" id="numUrgente">—</div><div class="stat-label">Urgente</div></div>
+  <div class="stat-item pendente"><div class="stat-num" id="numPendente">—</div><div class="stat-label">Pendente</div></div>
+  <div class="stat-item andamento"><div class="stat-num" id="numAndamento">—</div><div class="stat-label">Andamento</div></div>
+  <div class="stat-item concluido"><div class="stat-num" id="numConcluido">—</div><div class="stat-label">Concluído hoje</div></div>
+</div>
+
+<main id="main">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div>Carregando protocolos...</div>
+  </div>
+</main>
+
+<script>
+// ============================================================
+//  CONFIGURAÇÕES — edite conforme necessário
+// ============================================================
+const FORMS_CONCLUSAO_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeuk2or5P9XK8yCytnVdByHNINk0uGHLDpLbEdgiS2IYu1leQ/viewform";
+const API_URL = "https://script.google.com/macros/s/AKfycbwTkW5JH3NG9bwrKY-iAstZte7y-Yz09fhp5padKhaddt0n56nxN16BHVRVVL2jPlCh/exec";
+const PRAZO_HORAS = 24;
+const ATUALIZAR_MINUTOS = 2;
+// ============================================================
+
+let dadosProtocolos = [];
+
+function formatarTempo(dataHora) {
+  const agora = new Date();
+  const criado = new Date(dataHora);
+  const diff = agora - criado;
+  const horas = diff / (1000 * 60 * 60);
+  const restantes = PRAZO_HORAS - horas;
+
+  if (restantes <= 0) return { texto: "VENCIDO", restantes: 0, percentual: 100, tipo: "atrasado" };
+  if (restantes <= 4) return { texto: `${Math.round(restantes)}h restantes`, restantes, percentual: (horas / PRAZO_HORAS) * 100, tipo: "urgente" };
+  return { texto: `${Math.round(restantes)}h restantes`, restantes, percentual: (horas / PRAZO_HORAS) * 100, tipo: "pendente" };
+}
+
+function badgeTexto(tipo) {
+  const map = { urgente: "⚠️ Urgente", pendente: "🟡 Pendente", andamento: "🔵 Andamento", atrasado: "🔴 Atrasado" };
+  return map[tipo] || tipo;
+}
+
+function renderizarProtocolos(protocolos) {
+  const main = document.getElementById("main");
+
+  // Contadores
+  let urgentes = 0, pendentes = 0, andamentos = 0, concluidos = 0;
+
+  const ativos = [];
+  for (const p of protocolos) {
+    const status = (p.status || "").toUpperCase();
+    if (status === "CONCLUÍDO" || status === "CONCLUIDO") {
+      const hoje = new Date().toDateString();
+      const dataConc = p.dataConclusao ? new Date(p.dataConclusao).toDateString() : null;
+      if (dataConc === hoje) concluidos++;
+      continue;
+    }
+    const tempo = formatarTempo(p.dataHora);
+    p._tempo = tempo;
+    if (tempo.tipo === "urgente" || tempo.tipo === "atrasado") urgentes++;
+    else pendentes++;
+    if (status === "EM ANDAMENTO") andamentos++;
+    ativos.push(p);
+  }
+
+  document.getElementById("numUrgente").textContent = urgentes;
+  document.getElementById("numPendente").textContent = pendentes;
+  document.getElementById("numAndamento").textContent = andamentos;
+  document.getElementById("numConcluido").textContent = concluidos;
+
+  if (ativos.length === 0) {
+    main.innerHTML = `
+      <div class="vazio">
+        <div class="vazio-icon">✅</div>
+        <div class="vazio-titulo">Tudo limpo!</div>
+        <div class="vazio-sub">Nenhum protocolo pendente no momento.</div>
+      </div>`;
+    return;
+  }
+
+  // Ordena: atrasado > urgente > pendente, por tempo restante
+  ativos.sort((a, b) => a._tempo.restantes - b._tempo.restantes);
+
+  let html = "";
+
+  const urgentesLista = ativos.filter(p => p._tempo.tipo === "urgente" || p._tempo.tipo === "atrasado");
+  const outrosLista   = ativos.filter(p => p._tempo.tipo === "pendente" || p._tempo.tipo === "andamento");
+
+  if (urgentesLista.length > 0) {
+    html += `<div class="secao-titulo">🔴 Atenção imediata</div>`;
+    html += urgentesLista.map(p => renderCard(p)).join("");
+  }
+
+  if (outrosLista.length > 0) {
+    html += `<div class="secao-titulo">📋 Fila de serviços</div>`;
+    html += outrosLista.map(p => renderCard(p)).join("");
+  }
+
+  html += `<div class="atualizado" id="ultimaAtualizacao">Atualizado agora</div>`;
+  main.innerHTML = html;
+}
+
+function renderCard(p) {
+  const tipo = p._tempo.tipo;
+  const pct  = Math.min(p._tempo.percentual, 100).toFixed(0);
+  const link = FORMS_CONCLUSAO_URL;
+
+  return `
+  <div class="card ${tipo}">
+    <div class="card-topo">
+      <div class="card-barra"></div>
+      <div class="card-corpo">
+        <div class="card-header">
+          <span class="protocolo-num">${p.protocolo}</span>
+          <span class="badge ${tipo}">${badgeTexto(tipo)}</span>
+        </div>
+        <div class="endereco">📍 ${p.endereco}</div>
+        <div class="card-info">
+          <span class="info-item">🕐 ${formatarDataHora(p.dataHora)}</span>
+          <span class="info-item">👷 ${p.registradoPor || "—"}</span>
+          ${p.obs && p.obs !== "—" ? `<span class="info-item">📝 ${p.obs}</span>` : ""}
+        </div>
+        <div class="prazo-bar-wrap">
+          <div class="prazo-label">
+            <span style="color: ${tipo === 'urgente' || tipo === 'atrasado' ? 'var(--vermelho)' : 'var(--texto2)'}">
+              ${p._tempo.texto}
+            </span>
+            <span style="color: var(--texto2)">${pct}% do prazo</span>
+          </div>
+          <div class="prazo-bar">
+            <div class="prazo-fill" style="width: ${pct}%"></div>
+          </div>
+        </div>
+        <a class="btn-concluir" href="${link}" target="_blank">
+          ✅ Concluir este serviço
+        </a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function formatarDataHora(dt) {
+  if (!dt) return "—";
+  const d = new Date(dt);
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+async function carregarDados(btn) {
+  if (btn) {
+    btn.classList.add("girando");
+    btn.disabled = true;
+  }
+
+  try {
+    if (!API_URL) {
+      // Modo demonstração — dados fictícios para testar o layout
+      const agora = new Date();
+      const demo = [
+        { protocolo: "ENT-0001", dataHora: new Date(agora - 22*3600000).toISOString(), endereco: "Rua das Flores, 123 — próx. ao Mercado", registradoPor: "João Silva", obs: "Entulho grande, blocos e areia", status: "PENDENTE" },
+        { protocolo: "ENT-0002", dataHora: new Date(agora - 18*3600000).toISOString(), endereco: "Av. Brasil, 456 — em frente à Escola", registradoPor: "Maria Oliveira", obs: "—", status: "PENDENTE" },
+        { protocolo: "ENT-0003", dataHora: new Date(agora - 8*3600000).toISOString(), endereco: "Rua 7 de Setembro, 789 — esquina XV", registradoPor: "Pedro Santos", obs: "Pequeno, apenas terra", status: "EM ANDAMENTO" },
+        { protocolo: "ENT-0004", dataHora: new Date(agora - 2*3600000).toISOString(), endereco: "Rua Voluntários da Pátria, 321", registradoPor: "Ana Costa", obs: "—", status: "PENDENTE" },
+        { protocolo: "ENT-0005", dataHora: new Date(agora - 25*3600000).toISOString(), endereco: "Rua Marechal Deodoro, 50", registradoPor: "Carlos Lima", obs: "—", status: "PENDENTE" },
+      ];
+      renderizarProtocolos(demo);
+      return;
+    }
+
+    const resp = await fetch(API_URL);
+    const dados = await resp.json();
+    renderizarProtocolos(dados);
+  } catch (err) {
+    document.getElementById("main").innerHTML = `
+      <div class="vazio">
+        <div class="vazio-icon">⚠️</div>
+        <div class="vazio-titulo">Erro ao carregar</div>
+        <div class="vazio-sub">Verifique sua conexão e tente novamente.</div>
+      </div>`;
+  } finally {
+    if (btn) {
+      btn.classList.remove("girando");
+      btn.disabled = false;
+    }
+  }
+}
+
+// Atualiza automaticamente a cada X minutos
+setInterval(() => carregarDados(null), ATUALIZAR_MINUTOS * 60 * 1000);
+
+// Carrega ao abrir
+carregarDados(null);
+</script>
+</body>
+</html>
